@@ -2,12 +2,171 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <title>Geometric Pattern Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      nav {
+        position: fixed;
+        top: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(51, 51, 51, 0.8);
+        padding: 0.5rem 1rem;
+        display: flex;
+        gap: 1rem;
+        border-radius: 8px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 1000;
+      }
+      nav button {
+        background: none;
+        border: none;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-size: 1rem;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+      }
+      nav button.active {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      nav button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 200px;
+        height: 100%;
+        background-color: rgba(51, 51, 51, 0.8);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 999;
+        padding: 1rem;
+        color: #fff;
+        overflow-y: auto;
+      }
+      #sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      #sidebar h2 {
+        margin: 0;
+        font-size: 1rem;
+        opacity: 0.7;
+      }
+      #save-button {
+        background: none;
+        border: none;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      #save-button:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .preset-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .preset-item:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .delete-preset {
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        opacity: 0.5;
+        transition: opacity 0.3s;
+      }
+      .delete-preset:hover {
+        opacity: 1;
+      }
+      #canvas-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #download-button {
+        position: fixed;
+        bottom: 2rem;
+        left: calc(50% - 80px);
+        transform: translateX(-50%);
+        background-color: rgba(51, 51, 51, 0.8);
+        color: #fff;
+        padding: 0.5rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 1000;
+        transition: background-color 0.3s;
+      }
+      #download-svg-button {
+        position: fixed;
+        bottom: 2rem;
+        left: calc(50% + 80px);
+        transform: translateX(-50%);
+        background-color: rgba(51, 51, 51, 0.8);
+        color: #fff;
+        padding: 0.5rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 1000;
+        transition: background-color 0.3s;
+      }
+      #download-button:hover,
+      #download-svg-button:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <nav>
+      <button id="circle-mode" class="active">Circle</button>
+      <button id="leaf-mode">Leaf</button>
+    </nav>
+    <div id="sidebar">
+      <div id="sidebar-header">
+        <h2>Saved Parameters</h2>
+        <button id="save-button">Save</button>
+      </div>
+      <div id="preset-list"></div>
+    </div>
+    <button id="download-button">Download PNG</button>
+    <button id="download-svg-button">Download SVG</button>
+    <div id="canvas-container">
+      <script type="module" src="/src/main.ts"></script>
+    </div>
   </body>
 </html>
