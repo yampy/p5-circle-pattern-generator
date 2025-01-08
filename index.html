@@ -10,55 +10,46 @@
         margin: 0;
         overflow: hidden;
       }
-      nav {
-        position: fixed;
-        top: 1rem;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: rgba(51, 51, 51, 0.8);
-        padding: 0.5rem 1rem;
-        display: flex;
-        gap: 1rem;
-        border-radius: 8px;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        z-index: 1000;
-      }
-      nav button {
-        background: none;
-        border: none;
-        color: #fff;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        font-size: 1rem;
-        border-radius: 4px;
-        transition: background-color 0.3s;
-      }
-      nav button.active {
-        background-color: rgba(255, 255, 255, 0.2);
-      }
-      nav button:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-      }
       #sidebar {
         position: fixed;
         top: 0;
         left: 0;
-        width: 200px;
-        height: 100%;
+        width: 210px;
+        height: 100vh;
         background-color: rgba(51, 51, 51, 0.8);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         z-index: 999;
         padding: 1rem;
         color: #fff;
-        overflow-y: auto;
+        overflow: auto;
+        resize: horizontal;
+        min-width: 200px;
+        max-width: 500px;
+      }
+      #sidebar-content {
+        width: calc(100% - 10px);
+        min-width: 180px;
+      }
+      #sidebar-resizer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 4px;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.1);
+        cursor: col-resize;
+        transition: background-color 0.3s;
+      }
+      #sidebar-resizer:hover {
+        background-color: rgba(255, 255, 255, 0.3);
       }
       #sidebar-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1rem;
+        padding-right: 1rem;
       }
       #sidebar h2 {
         margin: 0;
@@ -87,11 +78,36 @@
         margin-bottom: 0.5rem;
         background-color: rgba(255, 255, 255, 0.1);
         border-radius: 4px;
+        transition: all 0.3s;
         cursor: pointer;
-        transition: background-color 0.3s;
       }
       .preset-item:hover {
         background-color: rgba(255, 255, 255, 0.2);
+        transform: translateX(4px);
+      }
+      .preset-name {
+        flex-grow: 1;
+        margin-right: 0.5rem;
+      }
+      .preset-name-input {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 1rem;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        outline: none;
+        border-bottom: 1px solid transparent;
+        cursor: pointer;
+      }
+      .preset-name-input:not([readonly]):hover,
+      .preset-name-input:not([readonly]):focus {
+        cursor: text;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      }
+      .preset-name-input[readonly]:hover {
+        border-bottom: none;
       }
       .delete-preset {
         background: none;
@@ -100,6 +116,8 @@
         cursor: pointer;
         opacity: 0.5;
         transition: opacity 0.3s;
+        padding: 0.25rem;
+        margin-left: 0.5rem;
       }
       .delete-preset:hover {
         opacity: 1;
@@ -152,16 +170,15 @@
     </style>
   </head>
   <body>
-    <nav>
-      <button id="circle-mode" class="active">Circle</button>
-      <button id="leaf-mode">Leaf</button>
-    </nav>
     <div id="sidebar">
-      <div id="sidebar-header">
-        <h2>Saved Parameters</h2>
-        <button id="save-button">Save</button>
+      <div id="sidebar-content">
+        <div id="sidebar-header">
+          <h2>Saved Parameters</h2>
+          <button id="save-button">Save</button>
+        </div>
+        <div id="preset-list"></div>
       </div>
-      <div id="preset-list"></div>
+      <div id="sidebar-resizer"></div>
     </div>
     <button id="download-button">Download PNG</button>
     <button id="download-svg-button">Download SVG</button>
