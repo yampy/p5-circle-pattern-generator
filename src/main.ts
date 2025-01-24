@@ -48,7 +48,6 @@ let canvasWidth: number;
 let canvasHeight: number;
 
 // モバイル対応のための状態管理
-let isSidebarOpen = false;
 let isMobileView = window.innerWidth < 768;
 
 // メニューの状態管理
@@ -685,25 +684,6 @@ function saveGeometricPresets() {
 // プリセットを保存
 saveGeometricPresets();
 
-// サイドバーの制御
-function initializeMobileControls() {
-  const sidebar = document.getElementById('sidebar');
-  const menuToggle = document.getElementById('menu-toggle');
-  const backButton = document.getElementById('back-button');
-
-  if (sidebar && menuToggle && backButton) {
-    menuToggle.addEventListener('click', () => {
-      sidebar.classList.add('open');
-      isSidebarOpen = true;
-    });
-
-    backButton.addEventListener('click', () => {
-      sidebar.classList.remove('open');
-      isSidebarOpen = false;
-    });
-  }
-}
-
 // ウィンドウサイズ変更時の処理
 window.addEventListener('resize', () => {
   const newIsMobileView = window.innerWidth < 768;
@@ -711,15 +691,6 @@ window.addEventListener('resize', () => {
   // モバイルビューの状態が変更された場合
   if (newIsMobileView !== isMobileView) {
     isMobileView = newIsMobileView;
-    const sidebar = document.getElementById('sidebar');
-    
-    if (sidebar) {
-      if (!isMobileView) {
-        // デスクトップビューに切り替わった場合
-        sidebar.classList.remove('open');
-        isSidebarOpen = false;
-      }
-    }
   }
 
   // キャンバスのリサイズ
