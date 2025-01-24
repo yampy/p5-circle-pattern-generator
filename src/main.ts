@@ -233,7 +233,85 @@ function deletePreset(id: string) {
 
 // p5.jsのスケッチ定義
 const sketch = (p: any) => {
-  let offscreenCanvas: any;
+  p.setup = () => {
+    canvasWidth = window.innerWidth;
+    canvasHeight = window.innerHeight;
+    p.createCanvas(canvasWidth, canvasHeight);
+    p.angleMode(p.DEGREES);
+  };
+
+  p.draw = () => {
+    const bgColor = p.color(params.backgroundColor);
+    p.background(bgColor);
+    p.translate(p.width / 2, p.height / 2);
+
+    if (params.clipOutsideCenter) {
+      // マスク用のグラフィックスバッファを作成
+      const maskBuffer = p.createGraphics(p.width, p.height);
+      maskBuffer.background(0);
+      maskBuffer.translate(maskBuffer.width / 2, maskBuffer.height / 2);
+      maskBuffer.fill(255);
+      maskBuffer.noStroke();
+      maskBuffer.circle(0, 0, params.centerRadius * 2);
+
+      // 描画用のグラフィックスバッファを作成
+      const drawBuffer = p.createGraphics(p.width, p.height);
+      drawBuffer.translate(drawBuffer.width / 2, drawBuffer.height / 2);
+      drawBuffer.angleMode(p.DEGREES);
+      drawBuffer.background(bgColor);
+
+      // 図形を描画
+      if (currentMode === 'circle') {
+        drawCircles();
+      } else {
+        drawLeaves();
+      }
+
+      // 中心円を描画（表示設定がONの場合）
+      if (params.showCenterCircle) {
+        drawBuffer.noFill();
+        drawBuffer.stroke(params.centerStrokeColor);
+        drawBuffer.strokeWeight(params.centerStrokeWeight);
+        drawBuffer.circle(0, 0, params.centerRadius * 2);
+      }
+
+      // マスクを適用
+      drawBuffer.loadPixels();
+      maskBuffer.loadPixels();
+      
+      for (let i = 0; i < drawBuffer.pixels.length; i += 4) {
+        // マスクのアルファ値（白=255、黒=0）を使用
+        const maskAlpha = maskBuffer.pixels[i];
+        if (maskAlpha === 0) {
+          // マスクが黒の部分は完全に透明にする
+          drawBuffer.pixels[i + 3] = 0;
+        }
+      }
+      
+      drawBuffer.updatePixels();
+
+      // 背景を描画
+      p.background(0);
+
+      // マスクされた図形を描画
+      p.image(drawBuffer, -p.width / 2, -p.height / 2);
+    } else {
+      // 通常の描画
+      if (currentMode === 'circle') {
+        drawCircles();
+      } else {
+        drawLeaves();
+      }
+
+      // 中心円の描画
+      if (params.showCenterCircle) {
+        p.noFill();
+        p.stroke(params.centerStrokeColor);
+        p.strokeWeight(params.centerStrokeWeight);
+        p.circle(0, 0, params.centerRadius * 2);
+      }
+    }
+  };
 
   // 円を描画する関数
   function drawCircles() {
@@ -284,86 +362,6 @@ const sketch = (p: any) => {
     p.pop();
   }
 
-  p.setup = () => {
-    canvasWidth = window.innerWidth;
-    canvasHeight = window.innerHeight;
-    p.createCanvas(canvasWidth, canvasHeight);
-    p.angleMode(p.DEGREES);
-  };
-
-  p.draw = () => {
-    const bgColor = p.color(params.backgroundColor);
-    p.background(bgColor);
-    p.translate(p.width / 2, p.height / 2);
-
-    if (params.clipOutsideCenter) {
-      // マスク用のグラフィックスバッファを作成
-      const maskBuffer = p.createGraphics(p.width, p.height);
-      maskBuffer.background(0);
-      maskBuffer.translate(maskBuffer.width / 2, maskBuffer.height / 2);
-      maskBuffer.fill(255);
-      maskBuffer.noStroke();
-      maskBuffer.circle(0, 0, params.centerRadius * 2);
-
-      // 描画用のグラフィックスバッファを作成
-      const drawBuffer = p.createGraphics(p.width, p.height);
-      drawBuffer.translate(drawBuffer.width / 2, drawBuffer.height / 2);
-      drawBuffer.angleMode(p.DEGREES);
-      drawBuffer.background(bgColor);
-
-      // 図形を描画
-      if (currentMode === 'circle') {
-        drawCirclesTo(drawBuffer);
-      } else {
-        drawLeavesTo(drawBuffer);
-      }
-
-      // 中心円を描画（表示設定がONの場合）
-      if (params.showCenterCircle) {
-        drawBuffer.noFill();
-        drawBuffer.stroke(params.centerStrokeColor);
-        drawBuffer.strokeWeight(params.centerStrokeWeight);
-        drawBuffer.circle(0, 0, params.centerRadius * 2);
-      }
-
-      // マスクを適用
-      drawBuffer.loadPixels();
-      maskBuffer.loadPixels();
-      
-      for (let i = 0; i < drawBuffer.pixels.length; i += 4) {
-        // マスクのアルファ値（白=255、黒=0）を使用
-        const maskAlpha = maskBuffer.pixels[i];
-        if (maskAlpha === 0) {
-          // マスクが黒の部分は完全に透明にする
-          drawBuffer.pixels[i + 3] = 0;
-        }
-      }
-      
-      drawBuffer.updatePixels();
-
-      // 背景を描画
-      p.background(0);
-
-      // マスクされた図形を描画
-      p.image(drawBuffer, -p.width / 2, -p.height / 2);
-    } else {
-      // 通常の描画
-      if (currentMode === 'circle') {
-        drawCircles();
-      } else {
-        drawLeaves();
-      }
-
-      // 中心円の描画
-      if (params.showCenterCircle) {
-        p.noFill();
-        p.stroke(params.centerStrokeColor);
-        p.strokeWeight(params.centerStrokeWeight);
-        p.circle(0, 0, params.centerRadius * 2);
-      }
-    }
-  };
-
   // バッファに円を描画する関数
   function drawCirclesTo(buffer: any) {
     buffer.noFill();
@@ -399,7 +397,6 @@ const sketch = (p: any) => {
     buffer.rotate(angle + params.outerLeafRotation);
     
     const leafLength = params.outerLeafRadius;
-    const leafWidth = leafLength * params.outerLeafWidth;
     const leafAngle = params.outerLeafAngle;
     
     buffer.beginShape();
