@@ -262,9 +262,9 @@ const sketch = (p: any) => {
 
       // 図形を描画
       if (currentMode === 'circle') {
-        drawCircles();
+        drawCirclesTo(drawBuffer);
       } else {
-        drawLeaves();
+        drawLeavesTo(drawBuffer);
       }
 
       // 中心円を描画（表示設定がONの場合）
