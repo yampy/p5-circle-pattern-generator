@@ -317,13 +317,39 @@ function deletePreset(id: string) {
   updatePresetList();
 }
 
-// p5.jsのスケッチ定義
+let p5Instance: any = null;
+
+// パターンのスケールを計算する関数
+function updatePatternScale() {
+  const minDimension = Math.min(window.innerWidth, window.innerHeight);
+  const baseScale = minDimension / 1000;  // 基準サイズ1000pxに対する比率
+  
+  // 各パラメータをスケーリング
+  params.centerRadius = DEFAULT_PARAMS.centerRadius * baseScale;
+  params.outerCircleDistance = DEFAULT_PARAMS.outerCircleDistance * baseScale;
+  params.outerCircleRadius = DEFAULT_PARAMS.outerCircleRadius * baseScale;
+  params.outerLeafDistance = DEFAULT_PARAMS.outerLeafDistance * baseScale;
+  params.outerLeafRadius = DEFAULT_PARAMS.outerLeafRadius * baseScale;
+  
+  // GUIの更新
+  gui.controllers.forEach((controller: any) => {
+    if (controller.property === 'centerRadius' ||
+        controller.property === 'outerCircleDistance' ||
+        controller.property === 'outerCircleRadius' ||
+        controller.property === 'outerLeafDistance' ||
+        controller.property === 'outerLeafRadius') {
+      controller.updateDisplay();
+    }
+  });
+}
+
 const sketch = (p: any) => {
   p.setup = () => {
     canvasWidth = window.innerWidth;
     canvasHeight = window.innerHeight;
     p.createCanvas(canvasWidth, canvasHeight);
     p.angleMode(p.DEGREES);
+    updatePatternScale();  // パターンスケールの初期設定
   };
 
   p.draw = () => {
@@ -498,13 +524,11 @@ const sketch = (p: any) => {
   };
 };
 
-// p5.jsのインスタンスを作成
-let p5Instance: any = null;
-
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
   initializeMenuControls();
-  new p5(sketch);
+  p5Instance = new p5(sketch);  // インスタンスを保持
+  initializeDownloadButtons();  // ダウンロードボタンの初期化を追加
 });
 
 // TypeScriptのグローバル宣言
@@ -597,94 +621,97 @@ function savePresetWithParams(presetParams: typeof params, modeName: Mode, name:
   updatePresetList();
 }
 
-// 美しいパターンのプリセットを保存
+// 美しいパターンのプリセット
 function saveGeometricPresets() {
-  // Preset 1: Golden Circle（黄金比の円）
+  // Preset 1: Fibonacci Spiral（フィボナッチスパイラル）
   savePresetWithParams({
     ...DEFAULT_PARAMS,
-    backgroundColor: '#2C3E50',
+    backgroundColor: '#1a1a2e',
     centerRadius: 89,
-    centerStrokeColor: '#E8E8E8',
-    centerStrokeWeight: 1.5,
+    centerStrokeColor: '#e2e2e2',
+    centerStrokeWeight: 1,
     outerMode: 'circle',
     outerCircleDistance: 144,
-    outerCircleAngleStep: 21.6,
+    outerCircleAngleStep: 13.5,  // 黄金角に基づく
+    outerCircleRotation: 21.6,   // フィボナッチ数列を基にした角度
     outerCircleRadius: 55,
-    outerCircleStrokeColor: '#E8E8E8',
-    outerCircleStrokeWeight: 1.5
-  }, 'circle', 'Preset #1: Golden Circle');
-
-  // Preset 2: Organic Leaves（有機的な葉）
-  savePresetWithParams({
-    ...DEFAULT_PARAMS,
-    backgroundColor: '#1A472A',
-    centerRadius: 100,
-    centerStrokeColor: '#98FB98',
-    centerStrokeWeight: 1,
-    outerMode: 'leaf',
-    outerLeafDistance: 150,
-    outerLeafAngleStep: 40,
-    outerLeafRotation: -45,
-    outerLeafGlobalRotation: 20,
-    outerLeafStrokeColor: '#98FB98',
-    outerLeafRadius: 120,
-    outerLeafWidth: 0.7,
-    outerLeafAngle: 45
-  }, 'leaf', 'Preset #2: Organic Leaves');
-
-  // Preset 3: Minimal Circles（ミニマルな円）
-  savePresetWithParams({
-    ...DEFAULT_PARAMS,
-    backgroundColor: '#212121',
-    centerRadius: 60,
-    centerStrokeColor: '#FFFFFF',
-    centerStrokeWeight: 1,
-    outerMode: 'circle',
-    outerCircleDistance: 120,
-    outerCircleAngleStep: 30,
-    outerCircleRadius: 30,
-    outerCircleStrokeColor: '#FFFFFF',
+    outerCircleStrokeColor: '#e2e2e2',
     outerCircleStrokeWeight: 1
-  }, 'circle', 'Preset #3: Minimal Circles');
+  }, 'circle', 'Fibonacci Spiral');
 
-  // Preset 4: Spiral Leaves（螺旋の葉）
+  // Preset 2: Lotus Petals（蓮の花びら）
   savePresetWithParams({
     ...DEFAULT_PARAMS,
-    backgroundColor: '#2C3E50',
+    backgroundColor: '#2d142c',
     centerRadius: 80,
-    centerStrokeColor: '#E74C3C',
-    centerStrokeWeight: 1.5,
+    centerStrokeColor: '#f2d0e0',
+    centerStrokeWeight: 1,
     outerMode: 'leaf',
-    outerLeafDistance: 130,
-    outerLeafAngleStep: 20,
+    outerLeafDistance: 120,
+    outerLeafAngleStep: 30,
     outerLeafRotation: -60,
     outerLeafGlobalRotation: 0,
-    outerLeafStrokeColor: '#E74C3C',
-    outerLeafRadius: 100,
-    outerLeafWidth: 0.6,
-    outerLeafAngle: 30
-  }, 'leaf', 'Preset #4: Spiral Leaves');
+    outerLeafStrokeColor: '#f2d0e0',
+    outerLeafRadius: 160,
+    outerLeafWidth: 0.4,
+    outerLeafAngle: 45
+  }, 'leaf', 'Lotus Petals');
 
-  // Preset 5: Radial Harmony（放射状の調和）
+  // Preset 3: Sacred Geometry（神聖幾何学）
   savePresetWithParams({
     ...DEFAULT_PARAMS,
-    backgroundColor: '#34495E',
+    backgroundColor: '#0f2027',
+    centerRadius: 100,
+    centerStrokeColor: '#64ffda',
+    centerStrokeWeight: 1,
+    outerMode: 'circle',
+    outerCircleDistance: 160,
+    outerCircleAngleStep: 60,
+    outerCircleRotation: 30,
+    outerCircleRadius: 100,
+    outerCircleStrokeColor: '#64ffda',
+    outerCircleStrokeWeight: 1
+  }, 'circle', 'Sacred Geometry');
+
+  // Preset 4: Wind Dance（風の舞）
+  savePresetWithParams({
+    ...DEFAULT_PARAMS,
+    backgroundColor: '#2c3e50',
+    centerRadius: 60,
+    centerStrokeColor: '#ecf0f1',
+    centerStrokeWeight: 1,
+    outerMode: 'leaf',
+    outerLeafDistance: 140,
+    outerLeafAngleStep: 15,
+    outerLeafRotation: -45,
+    outerLeafGlobalRotation: 10,
+    outerLeafStrokeColor: '#ecf0f1',
+    outerLeafRadius: 120,
+    outerLeafWidth: 0.3,
+    outerLeafAngle: 60
+  }, 'leaf', 'Wind Dance');
+
+  // Preset 5: Cosmic Rings（宇宙の輪）
+  savePresetWithParams({
+    ...DEFAULT_PARAMS,
+    backgroundColor: '#090909',
     centerRadius: 120,
-    centerStrokeColor: '#F1C40F',
-    centerStrokeWeight: 2,
+    centerStrokeColor: '#e6b3cc',
+    centerStrokeWeight: 1,
     outerMode: 'circle',
     outerCircleDistance: 180,
-    outerCircleAngleStep: 15,
-    outerCircleRadius: 40,
-    outerCircleStrokeColor: '#F1C40F',
-    outerCircleStrokeWeight: 1.5
-  }, 'circle', 'Preset #5: Radial Harmony');
+    outerCircleAngleStep: 20,
+    outerCircleRotation: 9,
+    outerCircleRadius: 90,
+    outerCircleStrokeColor: '#e6b3cc',
+    outerCircleStrokeWeight: 1
+  }, 'circle', 'Cosmic Rings');
 }
 
 // プリセットを保存
 saveGeometricPresets();
 
-// ウィンドウサイズ変更時の処理
+// ウィンドウサイズ変更時の処理を更新
 window.addEventListener('resize', () => {
   const newIsMobileView = window.innerWidth < 768;
   
@@ -698,5 +725,115 @@ window.addEventListener('resize', () => {
     canvasWidth = window.innerWidth;
     canvasHeight = window.innerHeight;
     p5Instance.resizeCanvas(canvasWidth, canvasHeight);
+    updatePatternScale();  // パターンスケールの更新
   }
 });
+
+// ダウンロード機能の実装
+function initializeDownloadButtons() {
+  const pngButton = document.getElementById('download-button');
+  const svgButton = document.getElementById('download-svg-button');
+
+  if (pngButton && svgButton) {
+    // PNG保存の実装
+    pngButton.addEventListener('click', () => {
+      if (p5Instance) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        p5Instance.saveCanvas(`geometric-pattern-${timestamp}`, 'png');
+      }
+    });
+
+    // SVG保存の実装
+    svgButton.addEventListener('click', () => {
+      if (p5Instance) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const svg = generateSVG();
+        downloadSVG(`geometric-pattern-${timestamp}.svg`, svg);
+      }
+    });
+  }
+}
+
+// SVGを生成する関数
+function generateSVG(): string {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  let svgContent = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="${params.backgroundColor}"/>`;
+
+  // 中心円の描画
+  if (params.showCenterCircle) {
+    svgContent += `
+  <circle cx="${centerX}" cy="${centerY}" r="${params.centerRadius}"
+    fill="none" stroke="${params.centerStrokeColor}" stroke-width="${params.centerStrokeWeight}"/>`;
+  }
+
+  // 外周の描画
+  if (currentMode === 'circle') {
+    // 円モードの描画
+    for (let angle = 0; angle < 360; angle += params.outerCircleAngleStep) {
+      const rotatedAngle = angle + params.outerCircleRotation;
+      const x = centerX + params.outerCircleDistance * Math.cos(rotatedAngle * Math.PI / 180);
+      const y = centerY + params.outerCircleDistance * Math.sin(rotatedAngle * Math.PI / 180);
+      
+      svgContent += `
+  <circle cx="${x}" cy="${y}" r="${params.outerCircleRadius}"
+    fill="none" stroke="${params.outerCircleStrokeColor}" stroke-width="${params.outerCircleStrokeWeight}"/>`;
+    }
+  } else {
+    // 葉モードの描画
+    for (let angle = 0; angle < 360; angle += params.outerLeafAngleStep) {
+      const rotatedAngle = angle + params.outerLeafGlobalRotation;
+      const x = centerX + params.outerLeafDistance * Math.cos(rotatedAngle * Math.PI / 180);
+      const y = centerY + params.outerLeafDistance * Math.sin(rotatedAngle * Math.PI / 180);
+      
+      // 葉の形状を描画
+      const leafPoints = generateLeafPoints(x, y, rotatedAngle + params.outerLeafRotation);
+      svgContent += `
+  <path d="${leafPoints}" fill="none" stroke="${params.outerLeafStrokeColor}" stroke-width="${params.outerLeafStrokeWeight}"/>`;
+    }
+  }
+
+  svgContent += '\n</svg>';
+  return svgContent;
+}
+
+// 葉のパスを生成する関数
+function generateLeafPoints(centerX: number, centerY: number, rotation: number): string {
+  const points: [number, number][] = [];
+  const leafLength = params.outerLeafRadius;
+  const leafAngle = params.outerLeafAngle;
+
+  for (let t = -leafAngle; t <= leafAngle; t++) {
+    const r = leafLength * Math.cos(t * (90 / leafAngle) * Math.PI / 180);
+    const x = r * Math.cos(t * Math.PI / 180);
+    const y = r * Math.sin(t * Math.PI / 180) * params.outerLeafWidth;
+    
+    // 回転を適用
+    const rotRad = rotation * Math.PI / 180;
+    const rotatedX = x * Math.cos(rotRad) - y * Math.sin(rotRad);
+    const rotatedY = x * Math.sin(rotRad) + y * Math.cos(rotRad);
+    
+    points.push([centerX + rotatedX, centerY + rotatedY]);
+  }
+
+  return `M ${points[0][0]} ${points[0][1]} ` + 
+         points.map(p => `L ${p[0]} ${p[1]}`).join(' ');
+}
+
+// SVGファイルをダウンロードする関数
+function downloadSVG(filename: string, content: string) {
+  const blob = new Blob([content], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
