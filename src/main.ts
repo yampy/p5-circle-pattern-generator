@@ -128,9 +128,19 @@ function initializeMenuControls() {
 
     // Save ボタンの機能を実装
     if (saveButton) {
-      saveButton.addEventListener('click', (e) => {
+      // クリックとタッチイベントの両方に対応
+      const saveHandler = (e: Event) => {
+        e.preventDefault();  // デフォルトの動作を防止
         e.stopPropagation();
         saveCurrentPreset();
+      };
+
+      saveButton.addEventListener('click', saveHandler);
+      saveButton.addEventListener('touchend', saveHandler);
+      
+      // タッチデバイスでのゴーストクリック防止
+      saveButton.addEventListener('touchstart', (e) => {
+        e.preventDefault();
       });
     }
 
