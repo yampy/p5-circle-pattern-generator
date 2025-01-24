@@ -17,6 +17,7 @@ const DEFAULT_PARAMS = {
   outerDistanceAnim: true,       // 外周円距離アニメーション
   outerRotationAnim: true,       // 外周円回転アニメーション
   outerRadiusAnim: true,         // 外周円半径アニメーション
+  outerAngleStepAnim: true,      // 外周円回転角度アニメーション
   
   // アニメーション強度
   backgroundColorIntensity: 0.5, // 背景色変化の強度
@@ -24,6 +25,7 @@ const DEFAULT_PARAMS = {
   outerDistanceIntensity: 0.3,   // 外周円の距離変化の強度
   outerRotationSpeed: 1.0,       // 外周円の回転速度
   outerRadiusIntensity: 0.3,     // 外周円の半径変化の強度
+  outerAngleStepIntensity: 0.3,  // 外周円の回転角度変化の強度
 
   // 中心円のパラメータ
   centerRadius: 150,             // 中心の円の半径
@@ -177,6 +179,7 @@ function initializeMenuControls() {
   animationFolder.add(params, 'outerDistanceAnim').name('Outer Distance');
   animationFolder.add(params, 'outerRotationAnim').name('Outer Rotation');
   animationFolder.add(params, 'outerRadiusAnim').name('Outer Radius');
+  animationFolder.add(params, 'outerAngleStepAnim').name('Outer Angle Step');
 
   const animIntensityFolder = animationFolder.addFolder('Animation Intensity');
   animIntensityFolder.add(params, 'backgroundColorIntensity', 0, 1).name('Background Color');
@@ -184,6 +187,7 @@ function initializeMenuControls() {
   animIntensityFolder.add(params, 'outerDistanceIntensity', 0, 1).name('Outer Distance');
   animIntensityFolder.add(params, 'outerRotationSpeed', 0.1, 5).name('Outer Rotation Speed');
   animIntensityFolder.add(params, 'outerRadiusIntensity', 0, 1).name('Outer Radius');
+  animIntensityFolder.add(params, 'outerAngleStepIntensity', 0, 1).name('Outer Angle Step');
 }
 
 // GUIの設定を更新
@@ -473,6 +477,13 @@ const sketch = (p: any) => {
       params.outerCircleRadius = baseRadius + radiusChange;
     }
 
+    // 外周円の回転角度アニメーション
+    if (params.outerAngleStepAnim) {
+      const baseAngleStep = DEFAULT_PARAMS.outerCircleAngleStep;
+      const angleStepChange = p.sin(elapsed * 45 * animSpeed) * baseAngleStep * params.outerAngleStepIntensity;
+      params.outerCircleAngleStep = baseAngleStep + angleStepChange;
+    }
+
     // GUIの更新
     gui.controllers.forEach((controller: any) => {
       if (controller.property === 'backgroundColor' ||
@@ -480,7 +491,8 @@ const sketch = (p: any) => {
           controller.property === 'outerCircleDistance' ||
           controller.property === 'outerCircleRotation' ||
           controller.property === 'outerLeafGlobalRotation' ||
-          controller.property === 'outerCircleRadius') {
+          controller.property === 'outerCircleRadius' ||
+          controller.property === 'outerCircleAngleStep') {
         controller.updateDisplay();
       }
     });
