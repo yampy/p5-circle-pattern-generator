@@ -10,7 +10,7 @@ const DEFAULT_PARAMS = {
   clipOutsideCenter: false,      // 中心円で切り抜き
 
   // アニメーション設定
-  animationEnabled: false,       // アニメーション有効/無効
+  animationEnabled: true,       // アニメーション有効/無効
   animationSpeed: 1,             // アニメーション速度
   backgroundColorAnim: true,     // 背景色アニメーション
   centerRadiusAnim: true,       // 中心円アニメーション
