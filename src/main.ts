@@ -10,18 +10,20 @@ const DEFAULT_PARAMS = {
   clipOutsideCenter: false,      // 中心円で切り抜き
 
   // アニメーション設定
-  animationEnabled: true,       // アニメーション有効/無効
+  animationEnabled: true,        // アニメーション有効/無効
   animationSpeed: 1,             // アニメーション速度
   backgroundColorAnim: true,     // 背景色アニメーション
-  centerRadiusAnim: true,       // 中心円アニメーション
-  outerDistanceAnim: true,      // 外周円距離アニメーション
-  outerRotationAnim: true,      // 外周円回転アニメーション
+  centerRadiusAnim: true,        // 中心円アニメーション
+  outerDistanceAnim: true,       // 外周円距離アニメーション
+  outerRotationAnim: true,       // 外周円回転アニメーション
+  outerRadiusAnim: true,         // 外周円半径アニメーション
   
   // アニメーション強度
   backgroundColorIntensity: 0.5, // 背景色変化の強度
-  centerRadiusIntensity: 0.3,   // 中心円の半径変化の強度
-  outerDistanceIntensity: 0.3,  // 外周円の距離変化の強度
-  outerRotationSpeed: 1.0,      // 外周円の回転速度
+  centerRadiusIntensity: 0.3,    // 中心円の半径変化の強度
+  outerDistanceIntensity: 0.3,   // 外周円の距離変化の強度
+  outerRotationSpeed: 1.0,       // 外周円の回転速度
+  outerRadiusIntensity: 0.3,     // 外周円の半径変化の強度
 
   // 中心円のパラメータ
   centerRadius: 150,             // 中心の円の半径
@@ -174,12 +176,14 @@ function initializeMenuControls() {
   animationFolder.add(params, 'centerRadiusAnim').name('Center Radius');
   animationFolder.add(params, 'outerDistanceAnim').name('Outer Distance');
   animationFolder.add(params, 'outerRotationAnim').name('Outer Rotation');
+  animationFolder.add(params, 'outerRadiusAnim').name('Outer Radius');
 
   const animIntensityFolder = animationFolder.addFolder('Animation Intensity');
   animIntensityFolder.add(params, 'backgroundColorIntensity', 0, 1).name('Background Color');
   animIntensityFolder.add(params, 'centerRadiusIntensity', 0, 1).name('Center Radius');
   animIntensityFolder.add(params, 'outerDistanceIntensity', 0, 1).name('Outer Distance');
   animIntensityFolder.add(params, 'outerRotationSpeed', 0.1, 5).name('Outer Rotation Speed');
+  animIntensityFolder.add(params, 'outerRadiusIntensity', 0, 1).name('Outer Radius');
 }
 
 // GUIの設定を更新
@@ -462,13 +466,21 @@ const sketch = (p: any) => {
       }
     }
 
+    // 外周円の半径アニメーション
+    if (params.outerRadiusAnim) {
+      const baseRadius = DEFAULT_PARAMS.outerCircleRadius;
+      const radiusChange = p.sin(elapsed * 45 * animSpeed) * baseRadius * params.outerRadiusIntensity;
+      params.outerCircleRadius = baseRadius + radiusChange;
+    }
+
     // GUIの更新
     gui.controllers.forEach((controller: any) => {
       if (controller.property === 'backgroundColor' ||
           controller.property === 'centerRadius' ||
           controller.property === 'outerCircleDistance' ||
           controller.property === 'outerCircleRotation' ||
-          controller.property === 'outerLeafGlobalRotation') {
+          controller.property === 'outerLeafGlobalRotation' ||
+          controller.property === 'outerCircleRadius') {
         controller.updateDisplay();
       }
     });
