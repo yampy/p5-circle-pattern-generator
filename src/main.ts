@@ -9,6 +9,10 @@ const DEFAULT_PARAMS = {
   showCenterCircle: true,        // 中心円の表示/非表示
   clipOutsideCenter: false,      // 中心円で切り抜き
 
+  // アニメーション設定
+  animationEnabled: false,       // アニメーション有効/無効
+  animationSpeed: 1,             // アニメーション速度
+
   // 中心円のパラメータ
   centerRadius: 150,             // 中心の円の半径
   centerStrokeColor: '#ffffff',  // 中心の円の線の色
@@ -151,6 +155,11 @@ function initializeMenuControls() {
       }
     });
   }
+
+  // アニメーション設定
+  const animationFolder = gui.addFolder('Animation Settings');
+  animationFolder.add(params, 'animationEnabled').name('Animation ON/OFF');
+  animationFolder.add(params, 'animationSpeed', 0.1, 5).name('Speed');
 }
 
 // GUIの設定を更新
@@ -385,6 +394,14 @@ const sketch = (p: any) => {
   };
 
   p.draw = () => {
+    // アニメーション更新
+    if (params.animationEnabled) {
+      params.outerCircleRotation += params.animationSpeed;
+      if (params.outerCircleRotation >= 360) {
+        params.outerCircleRotation -= 360;
+      }
+    }
+
     const bgColor = p.color(params.backgroundColor);
     p.background(bgColor);
     p.translate(p.width / 2, p.height / 2);
@@ -560,8 +577,30 @@ const sketch = (p: any) => {
 document.addEventListener('DOMContentLoaded', () => {
   initializeMenuControls();
   p5Instance = new p5(sketch);  // インスタンスを保持
-  initializeDownloadButtons();  // ダウンロードボタンの初期化を追加
+  initializeDownloadButtons();  // ダウンロードボタンの初期化
+  initializeAnimationButton();  // アニメーションボタンの初期化
 });
+
+// アニメーションボタンの初期化
+function initializeAnimationButton() {
+  const animationButton = document.getElementById('animation-button');
+  if (animationButton) {
+    // 初期状態を反映
+    if (params.animationEnabled) {
+      animationButton.classList.add('active');
+    }
+
+    // クリックイベントの処理
+    animationButton.addEventListener('click', () => {
+      params.animationEnabled = !params.animationEnabled;
+      if (params.animationEnabled) {
+        animationButton.classList.add('active');
+      } else {
+        animationButton.classList.remove('active');
+      }
+    });
+  }
+}
 
 // TypeScriptのグローバル宣言
 declare global {

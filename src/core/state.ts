@@ -35,4 +35,20 @@ export function setCurrentMode(mode: Mode) {
 
 export function updatePresets(newPresets: Preset[]) {
   presets = newPresets;
-} 
+}
+
+export interface State {
+  animation: {
+    isEnabled: boolean;
+    speed: number;
+    currentRotation: number;
+  };
+}
+
+export const initialState: State = {
+  animation: {
+    isEnabled: false,
+    speed: 1,
+    currentRotation: 0
+  }
+}; 
