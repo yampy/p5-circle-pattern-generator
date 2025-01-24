@@ -12,6 +12,16 @@ const DEFAULT_PARAMS = {
   // アニメーション設定
   animationEnabled: false,       // アニメーション有効/無効
   animationSpeed: 1,             // アニメーション速度
+  backgroundColorAnim: true,     // 背景色アニメーション
+  centerRadiusAnim: true,       // 中心円アニメーション
+  outerDistanceAnim: true,      // 外周円距離アニメーション
+  outerRotationAnim: true,      // 外周円回転アニメーション
+  
+  // アニメーション強度
+  backgroundColorIntensity: 0.5, // 背景色変化の強度
+  centerRadiusIntensity: 0.3,   // 中心円の半径変化の強度
+  outerDistanceIntensity: 0.3,  // 外周円の距離変化の強度
+  outerRotationSpeed: 1.0,      // 外周円の回転速度
 
   // 中心円のパラメータ
   centerRadius: 150,             // 中心の円の半径
@@ -160,13 +170,23 @@ function initializeMenuControls() {
   const animationFolder = gui.addFolder('Animation Settings');
   animationFolder.add(params, 'animationEnabled').name('Animation ON/OFF');
   animationFolder.add(params, 'animationSpeed', 0.1, 5).name('Speed');
+  animationFolder.add(params, 'backgroundColorAnim').name('Background Color');
+  animationFolder.add(params, 'centerRadiusAnim').name('Center Radius');
+  animationFolder.add(params, 'outerDistanceAnim').name('Outer Distance');
+  animationFolder.add(params, 'outerRotationAnim').name('Outer Rotation');
+
+  const animIntensityFolder = animationFolder.addFolder('Animation Intensity');
+  animIntensityFolder.add(params, 'backgroundColorIntensity', 0, 1).name('Background Color');
+  animIntensityFolder.add(params, 'centerRadiusIntensity', 0, 1).name('Center Radius');
+  animIntensityFolder.add(params, 'outerDistanceIntensity', 0, 1).name('Outer Distance');
+  animIntensityFolder.add(params, 'outerRotationSpeed', 0.1, 5).name('Outer Rotation Speed');
 }
 
 // GUIの設定を更新
 const gui = new GUI({
   container: document.getElementById('params-menu') || undefined,
   title: 'Pattern Settings',
-  closeFolders: true  // 初期状態ではフォルダーを閉じる
+  closeFolders: true
 });
 
 // GUIコンテナのスタイル調整
@@ -385,22 +405,78 @@ function updatePatternScale() {
 }
 
 const sketch = (p: any) => {
+  let startTime: number;
+  let baseBackgroundColor: any;
+
   p.setup = () => {
+    startTime = p.millis();
+    baseBackgroundColor = p.color(params.backgroundColor);
     canvasWidth = window.innerWidth;
     canvasHeight = window.innerHeight;
     p.createCanvas(canvasWidth, canvasHeight);
     p.angleMode(p.DEGREES);
-    updatePatternScale();  // パターンスケールの初期設定
+    updatePatternScale();
   };
 
-  p.draw = () => {
-    // アニメーション更新
-    if (params.animationEnabled) {
-      params.outerCircleRotation += params.animationSpeed;
-      if (params.outerCircleRotation >= 360) {
-        params.outerCircleRotation -= 360;
+  // アニメーションの更新を行う関数
+  function updateAnimations() {
+    if (!params.animationEnabled) return;
+
+    const currentTime = p.millis();
+    const elapsed = (currentTime - startTime) / 1000; // 秒単位の経過時間
+    const animSpeed = params.animationSpeed;
+
+    // 背景色のアニメーション
+    if (params.backgroundColorAnim) {
+      const hueShift = p.sin(elapsed * 30 * animSpeed) * 180 * params.backgroundColorIntensity;
+      const baseHue = p.hue(baseBackgroundColor);
+      const baseSaturation = p.saturation(baseBackgroundColor);
+      const baseLightness = p.lightness(baseBackgroundColor);
+      p.colorMode(p.HSL);
+      params.backgroundColor = p.color((baseHue + hueShift) % 360, baseSaturation, baseLightness).toString('#rrggbb');
+      p.colorMode(p.RGB);
+    }
+
+    // 中心円の半径アニメーション
+    if (params.centerRadiusAnim) {
+      const baseRadius = DEFAULT_PARAMS.centerRadius;
+      const radiusChange = p.sin(elapsed * 45 * animSpeed) * baseRadius * params.centerRadiusIntensity;
+      params.centerRadius = baseRadius + radiusChange;
+    }
+
+    // 外周円の距離アニメーション
+    if (params.outerDistanceAnim) {
+      const baseDistance = DEFAULT_PARAMS.outerCircleDistance;
+      const distanceChange = p.sin(elapsed * 60 * animSpeed) * baseDistance * params.outerDistanceIntensity;
+      params.outerCircleDistance = baseDistance + distanceChange;
+    }
+
+    // 外周円の回転アニメーション
+    if (params.outerRotationAnim) {
+      // 連続的な回転（Sin関数ではなく線形に回転）
+      params.outerCircleRotation = (elapsed * 30 * animSpeed * params.outerRotationSpeed) % 360;
+      
+      // Leafモードの場合は全体の回転も更新
+      if (currentMode === 'leaf') {
+        params.outerLeafGlobalRotation = params.outerCircleRotation;
       }
     }
+
+    // GUIの更新
+    gui.controllers.forEach((controller: any) => {
+      if (controller.property === 'backgroundColor' ||
+          controller.property === 'centerRadius' ||
+          controller.property === 'outerCircleDistance' ||
+          controller.property === 'outerCircleRotation' ||
+          controller.property === 'outerLeafGlobalRotation') {
+        controller.updateDisplay();
+      }
+    });
+  }
+
+  p.draw = () => {
+    // アニメーションの更新
+    updateAnimations();
 
     const bgColor = p.color(params.backgroundColor);
     p.background(bgColor);
