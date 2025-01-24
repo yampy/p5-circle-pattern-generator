@@ -88,6 +88,12 @@ function initializeMenuControls() {
   const paramsMenu = document.getElementById('params-menu');
   const paramsToggle = document.getElementById('params-toggle');
   const canvasContainer = document.getElementById('canvas-container');
+  const saveButton = document.getElementById('save-button');
+
+  // パラメータメニューの位置調整
+  if (paramsMenu) {
+    paramsMenu.style.marginTop = '60px';  // トップメニューの高さ分を確保
+  }
 
   if (presetSidebar && presetToggle && paramsMenu && paramsToggle) {
     // プリセットサイドバーの制御
@@ -120,6 +126,14 @@ function initializeMenuControls() {
       });
     }
 
+    // Save ボタンの機能を実装
+    if (saveButton) {
+      saveButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        saveCurrentPreset();
+      });
+    }
+
     // ドキュメント全体のクリックでメニューを閉じる
     document.addEventListener('click', () => {
       if (menuState.isPresetSidebarVisible || menuState.isParamsMenuVisible) {
@@ -135,6 +149,14 @@ const gui = new GUI({
   title: 'Pattern Settings',
   closeFolders: true  // 初期状態ではフォルダーを閉じる
 });
+
+// GUIコンテナのスタイル調整
+const guiContainer = document.querySelector('.lil-gui.root') as HTMLElement;
+if (guiContainer) {
+  guiContainer.style.marginTop = '80px';  // 上部の余白を増やす
+  guiContainer.style.height = 'calc(100% - 80px)';  // 高さを調整
+  guiContainer.style.overflow = 'auto';  // スクロール可能に
+}
 
 // 共通設定フォルダー
 const commonFolder = gui.addFolder('共通パラメータ');
@@ -609,8 +631,8 @@ if (sidebar && resizer) {
   });
 }
 
-// プリセットを保存する関数
-function savePresetWithParams(presetParams: typeof params, modeName: Mode, name: string) {
+// プリセットを保存する関数（パラメータ指定版）
+function savePreset(presetParams: typeof params, modeName: Mode, name: string) {
   const preset: Preset = {
     id: String(presetCounter++),
     name,
@@ -621,10 +643,26 @@ function savePresetWithParams(presetParams: typeof params, modeName: Mode, name:
   updatePresetList();
 }
 
+// 現在の設定をプリセットとして保存する関数
+function saveCurrentPreset() {
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+  const presetName = `${timestamp}`;
+  
+  const preset: Preset = {
+    id: String(presetCounter++),
+    name: presetName,
+    params: { ...params },
+    mode: currentMode
+  };
+  
+  presets.push(preset);
+  updatePresetList();
+}
+
 // 美しいパターンのプリセット
 function saveGeometricPresets() {
   // Preset 1: Fibonacci Spiral（フィボナッチスパイラル）
-  savePresetWithParams({
+  savePreset({
     ...DEFAULT_PARAMS,
     backgroundColor: '#1a1a2e',
     centerRadius: 89,
@@ -632,15 +670,15 @@ function saveGeometricPresets() {
     centerStrokeWeight: 1,
     outerMode: 'circle',
     outerCircleDistance: 144,
-    outerCircleAngleStep: 13.5,  // 黄金角に基づく
-    outerCircleRotation: 21.6,   // フィボナッチ数列を基にした角度
+    outerCircleAngleStep: 13.5,
+    outerCircleRotation: 21.6,
     outerCircleRadius: 55,
     outerCircleStrokeColor: '#e2e2e2',
     outerCircleStrokeWeight: 1
   }, 'circle', 'Fibonacci Spiral');
 
   // Preset 2: Lotus Petals（蓮の花びら）
-  savePresetWithParams({
+  savePreset({
     ...DEFAULT_PARAMS,
     backgroundColor: '#2d142c',
     centerRadius: 80,
@@ -658,7 +696,7 @@ function saveGeometricPresets() {
   }, 'leaf', 'Lotus Petals');
 
   // Preset 3: Sacred Geometry（神聖幾何学）
-  savePresetWithParams({
+  savePreset({
     ...DEFAULT_PARAMS,
     backgroundColor: '#0f2027',
     centerRadius: 100,
@@ -674,7 +712,7 @@ function saveGeometricPresets() {
   }, 'circle', 'Sacred Geometry');
 
   // Preset 4: Wind Dance（風の舞）
-  savePresetWithParams({
+  savePreset({
     ...DEFAULT_PARAMS,
     backgroundColor: '#2c3e50',
     centerRadius: 60,
@@ -692,7 +730,7 @@ function saveGeometricPresets() {
   }, 'leaf', 'Wind Dance');
 
   // Preset 5: Cosmic Rings（宇宙の輪）
-  savePresetWithParams({
+  savePreset({
     ...DEFAULT_PARAMS,
     backgroundColor: '#090909',
     centerRadius: 120,

@@ -94,3 +94,10 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+#preset-sidebar h2 {
+  margin-top: 60px;  /* ハンバーガーメニューとの重複を避けるための余白 */
+  padding: 0 20px;   /* 左右の余白 */
+  font-size: 1.5em;  /* フォントサイズ */
+  color: rgba(255, 255, 255, 0.95);  /* テキストカラー */
+}
