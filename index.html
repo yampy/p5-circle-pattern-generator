@@ -10,118 +10,220 @@
         margin: 0;
         overflow: hidden;
       }
-      #sidebar {
+
+      /* プリセットサイドバー */
+      #preset-sidebar {
         position: fixed;
         top: 0;
         left: 0;
-        width: 210px;
+        width: 250px;
         height: 100vh;
-        background-color: rgba(51, 51, 51, 0.8);
+        background-color: rgba(51, 51, 51, 0.45);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         z-index: 999;
-        padding: 1rem;
-        color: #fff;
-        overflow: auto;
-        resize: horizontal;
-        min-width: 200px;
-        max-width: 500px;
+        padding: 1.5rem;
+        color: rgba(255, 255, 255, 0.95);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        transform: translateX(-100%);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
       }
-      #sidebar-content {
-        width: calc(100% - 10px);
-        min-width: 180px;
+
+      #preset-sidebar.hidden {
+        transform: translateX(-100%);
       }
-      #sidebar-resizer {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 4px;
-        height: 100%;
-        background-color: rgba(255, 255, 255, 0.1);
-        cursor: col-resize;
-        transition: background-color 0.3s;
-      }
-      #sidebar-resizer:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-      }
+
+      /* サイドバーの内部レイアウト */
       #sidebar-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
-        padding-right: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 0;
+        flex-shrink: 0;
       }
+
       #sidebar h2 {
         margin: 0;
-        font-size: 1rem;
-        opacity: 0.7;
+        font-size: 1.1rem;
+        font-weight: 500;
+        opacity: 0.9;
+        letter-spacing: 0.5px;
       }
+
       #save-button {
-        background: none;
-        border: none;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
         color: #fff;
         padding: 0.5rem 1rem;
         cursor: pointer;
         font-size: 0.9rem;
         border-radius: 4px;
-        transition: background-color 0.3s;
-        background-color: rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+        flex-shrink: 0;
       }
+
       #save-button:hover {
-        background-color: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.2);
       }
+
+      /* プリセットリストのスクロール領域 */
+      #preset-list {
+        overflow-y: auto;
+        overflow-x: hidden;
+        flex-grow: 1;
+        margin: 0 -1.5rem;
+        padding: 0 1.5rem;
+      }
+
+      #preset-list::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      #preset-list::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      #preset-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+      }
+
+      /* パラメーターメニュー */
+      #params-menu {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 280px;
+        height: 100vh;
+        background-color: rgba(51, 51, 51, 0.45);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 999;
+        padding: 1.5rem;
+        color: rgba(255, 255, 255, 0.95);
+        overflow: auto;
+        transform: translateX(100%);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      /* メニュートグルボタン */
+      #preset-toggle,
+      #params-toggle {
+        position: fixed;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(51, 51, 51, 0.45);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      #preset-toggle {
+        top: 1rem;
+        left: 1rem;
+        z-index: 1000;
+      }
+
+      #params-toggle {
+        top: 1rem;
+        right: 1rem;
+        z-index: 1000;
+      }
+
+      #preset-toggle:hover,
+      #params-toggle:hover {
+        background: rgba(51, 51, 51, 0.6);
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* プリセットアイテムのスタイル改善 */
       .preset-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
-        transition: all 0.3s;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.75rem;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 6px;
+        transition: all 0.2s ease;
         cursor: pointer;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
+
       .preset-item:hover {
-        background-color: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.12);
         transform: translateX(4px);
+        border-color: rgba(255, 255, 255, 0.2);
       }
-      .preset-name {
-        flex-grow: 1;
-        margin-right: 0.5rem;
-      }
+
       .preset-name-input {
         background: none;
         border: none;
         color: #fff;
-        font-size: 1rem;
+        font-size: 0.95rem;
         width: 100%;
         padding: 0;
         margin: 0;
         outline: none;
         border-bottom: 1px solid transparent;
-        cursor: pointer;
       }
-      .preset-name-input:not([readonly]):hover,
-      .preset-name-input:not([readonly]):focus {
-        cursor: text;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-      }
-      .preset-name-input[readonly]:hover {
-        border-bottom: none;
-      }
+
       .delete-preset {
         background: none;
         border: none;
         color: #fff;
-        cursor: pointer;
-        opacity: 0.5;
-        transition: opacity 0.3s;
-        padding: 0.25rem;
-        margin-left: 0.5rem;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        opacity: 0.6;
+        transition: all 0.2s ease;
+        margin-left: 0.75rem;
+        flex-shrink: 0;
       }
+
       .delete-preset:hover {
         opacity: 1;
+        background: rgba(255, 255, 255, 0.1);
       }
+
+      /* スクロールバーのスタイル */
+      #params-menu::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      #params-menu::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      #params-menu::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+      }
+
       #canvas-container {
         position: fixed;
         top: 0;
@@ -129,59 +231,82 @@
         width: 100%;
         height: 100%;
       }
-      #download-button {
+
+      /* ダウンロードボタン */
+      .download-buttons {
         position: fixed;
         bottom: 2rem;
-        left: calc(50% - 80px);
+        left: 50%;
         transform: translateX(-50%);
-        background-color: rgba(51, 51, 51, 0.8);
-        color: #fff;
-        padding: 0.5rem 1.5rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        display: flex;
+        gap: 1rem;
         z-index: 1000;
-        transition: background-color 0.3s;
       }
+
+      #download-button,
       #download-svg-button {
-        position: fixed;
-        bottom: 2rem;
-        left: calc(50% + 80px);
-        transform: translateX(-50%);
-        background-color: rgba(51, 51, 51, 0.8);
-        color: #fff;
-        padding: 0.5rem 1.5rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
+        background-color: rgba(51, 51, 51, 0.45);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        z-index: 1000;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
         transition: background-color 0.3s;
+        white-space: nowrap;
       }
+
       #download-button:hover,
       #download-svg-button:hover {
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(51, 51, 51, 0.6);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* lil-guiのスタイル上書き */
+      .lil-gui {
+        --background-color: transparent !important;
+        --widget-color: rgba(255, 255, 255, 0.08) !important;
+        --hover-color: rgba(255, 255, 255, 0.12) !important;
+        --focus-color: rgba(255, 255, 255, 0.15) !important;
+        --border-radius: 6px !important;
+      }
+
+      .lil-gui .title {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+      }
+
+      .lil-gui .widget {
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
       }
     </style>
   </head>
   <body>
-    <div id="sidebar">
-      <div id="sidebar-content">
-        <div id="sidebar-header">
-          <h2>Saved Parameters</h2>
-          <button id="save-button">Save</button>
-        </div>
-        <div id="preset-list"></div>
+    <!-- プリセットサイドバー -->
+    <button id="preset-toggle">☰</button>
+    <div id="preset-sidebar">
+      <div id="sidebar-header">
+        <h2>Saved Parameters</h2>
+        <button id="save-button">Save</button>
       </div>
-      <div id="sidebar-resizer"></div>
+      <div id="preset-list"></div>
     </div>
-    <button id="download-button">Download PNG</button>
-    <button id="download-svg-button">Download SVG</button>
+
+    <!-- パラメーターメニュー -->
+    <button id="params-toggle">⚙</button>
+    <div id="params-menu"></div>
+
+    <!-- ダウンロードボタン -->
+    <div class="download-buttons">
+      <button id="download-button">Download PNG</button>
+      <button id="download-svg-button">Download SVG</button>
+    </div>
+
+    <!-- キャンバス -->
     <div id="canvas-container">
       <script type="module" src="/src/main.ts"></script>
     </div>

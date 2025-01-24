@@ -47,8 +47,95 @@ let currentMode: Mode = 'circle';
 let canvasWidth: number;
 let canvasHeight: number;
 
-// GUIの設定
-const gui = new GUI();
+// モバイル対応のための状態管理
+let isSidebarOpen = false;
+let isMobileView = window.innerWidth < 768;
+
+// メニューの状態管理
+interface MenuState {
+  isPresetSidebarVisible: boolean;
+  isParamsMenuVisible: boolean;
+}
+
+const menuState: MenuState = {
+  isPresetSidebarVisible: false,  // 初期状態で非表示
+  isParamsMenuVisible: false      // 初期状態で非表示
+};
+
+// メニューを閉じる関数
+function hideMenus() {
+  const presetSidebar = document.getElementById('preset-sidebar');
+  const presetToggle = document.getElementById('preset-toggle');
+  const paramsMenu = document.getElementById('params-menu');
+  const paramsToggle = document.getElementById('params-toggle');
+
+  if (presetSidebar && presetToggle && paramsMenu && paramsToggle) {
+    // プリセットサイドバーを非表示
+    menuState.isPresetSidebarVisible = false;
+    presetSidebar.style.transform = 'translateX(-100%)';
+    presetToggle.style.transform = 'rotate(0deg)';
+
+    // パラメーターメニューを非表示
+    menuState.isParamsMenuVisible = false;
+    paramsMenu.style.transform = 'translateX(100%)';
+    paramsToggle.style.transform = 'rotate(0deg)';
+  }
+}
+
+// メニュー制御の初期化
+function initializeMenuControls() {
+  const presetSidebar = document.getElementById('preset-sidebar');
+  const presetToggle = document.getElementById('preset-toggle');
+  const paramsMenu = document.getElementById('params-menu');
+  const paramsToggle = document.getElementById('params-toggle');
+  const canvasContainer = document.getElementById('canvas-container');
+
+  if (presetSidebar && presetToggle && paramsMenu && paramsToggle) {
+    // プリセットサイドバーの制御
+    presetToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuState.isPresetSidebarVisible = !menuState.isPresetSidebarVisible;
+      presetSidebar.style.transform = menuState.isPresetSidebarVisible ? 'translateX(0)' : 'translateX(-100%)';
+      presetToggle.style.transform = menuState.isPresetSidebarVisible ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
+
+    // パラメーターメニューの制御
+    paramsToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuState.isParamsMenuVisible = !menuState.isParamsMenuVisible;
+      paramsMenu.style.transform = menuState.isParamsMenuVisible ? 'translateX(0)' : 'translateX(100%)';
+      paramsToggle.style.transform = menuState.isParamsMenuVisible ? 'rotate(-180deg)' : 'rotate(0deg)';
+    });
+
+    // メニュー自体のクリックイベントの伝播を停止
+    presetSidebar.addEventListener('click', (e) => e.stopPropagation());
+    paramsMenu.addEventListener('click', (e) => e.stopPropagation());
+
+    // キャンバスコンテナのクリックでメニューを閉じる
+    if (canvasContainer) {
+      canvasContainer.addEventListener('click', (e) => {
+        if (menuState.isPresetSidebarVisible || menuState.isParamsMenuVisible) {
+          e.stopPropagation();
+          hideMenus();
+        }
+      });
+    }
+
+    // ドキュメント全体のクリックでメニューを閉じる
+    document.addEventListener('click', () => {
+      if (menuState.isPresetSidebarVisible || menuState.isParamsMenuVisible) {
+        hideMenus();
+      }
+    });
+  }
+}
+
+// GUIの設定を更新
+const gui = new GUI({
+  container: document.getElementById('params-menu') || undefined,
+  title: 'Pattern Settings',
+  closeFolders: true  // 初期状態ではフォルダーを閉じる
+});
 
 // 共通設定フォルダー
 const commonFolder = gui.addFolder('共通パラメータ');
@@ -413,7 +500,13 @@ const sketch = (p: any) => {
 };
 
 // p5.jsのインスタンスを作成
-new p5(sketch);
+let p5Instance: any = null;
+
+// 初期化
+document.addEventListener('DOMContentLoaded', () => {
+  initializeMenuControls();
+  new p5(sketch);
+});
 
 // TypeScriptのグローバル宣言
 declare global {
@@ -591,3 +684,48 @@ function saveGeometricPresets() {
 
 // プリセットを保存
 saveGeometricPresets();
+
+// サイドバーの制御
+function initializeMobileControls() {
+  const sidebar = document.getElementById('sidebar');
+  const menuToggle = document.getElementById('menu-toggle');
+  const backButton = document.getElementById('back-button');
+
+  if (sidebar && menuToggle && backButton) {
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.add('open');
+      isSidebarOpen = true;
+    });
+
+    backButton.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      isSidebarOpen = false;
+    });
+  }
+}
+
+// ウィンドウサイズ変更時の処理
+window.addEventListener('resize', () => {
+  const newIsMobileView = window.innerWidth < 768;
+  
+  // モバイルビューの状態が変更された場合
+  if (newIsMobileView !== isMobileView) {
+    isMobileView = newIsMobileView;
+    const sidebar = document.getElementById('sidebar');
+    
+    if (sidebar) {
+      if (!isMobileView) {
+        // デスクトップビューに切り替わった場合
+        sidebar.classList.remove('open');
+        isSidebarOpen = false;
+      }
+    }
+  }
+
+  // キャンバスのリサイズ
+  if (p5Instance) {
+    canvasWidth = window.innerWidth;
+    canvasHeight = window.innerHeight;
+    p5Instance.resizeCanvas(canvasWidth, canvasHeight);
+  }
+});
