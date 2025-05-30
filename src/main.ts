@@ -893,6 +893,36 @@ function saveGeometricPresets() {
     outerCircleStrokeColor: '#e6b3cc',
     outerCircleStrokeWeight: 1
   }, 'circle', 'Cosmic Rings');
+
+  // Preset: SATIA
+  savePreset({
+    ...DEFAULT_PARAMS,
+    animationEnabled: false, // アニメーションをOFFに設定
+    // 共通パラメータ
+    backgroundColor: '#988e79',
+    showCenterCircle: true,
+    clipOutsideCenter: true,
+
+    // 中心円のパラメータ
+    centerRadius: 145.25,
+    centerStrokeColor: '#f2e7ce',
+    centerStrokeWeight: 3,
+
+    // 外周設定
+    outerMode: 'circle',
+
+    // 外周円のパラメータ（Circleモード）
+    outerCircleDistance: 92,
+    outerCircleAngleStep: 45,
+    outerCircleRotation: 0,
+    outerCircleStrokeColor: '#f2e7ce',
+    outerCircleRadius: 100,
+    outerCircleStrokeWeight: 3
+
+    // アニメーションと葉のパラメータはDEFAULT_PARAMSから継承されます
+    // (animationEnabled, animationSpeed, etc. will use values from DEFAULT_PARAMS)
+    // (outerLeafDistance, outerLeafAngleStep, etc. will use values from DEFAULT_PARAMS)
+  }, 'circle', 'SATIA');
 }
 
 // プリセットを保存
