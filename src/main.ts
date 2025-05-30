@@ -415,6 +415,8 @@ function updatePatternScale() {
 const sketch = (p: any) => {
   let startTime: number;
   let baseBackgroundColor: any;
+  let drawBuffer: any; // p5.Graphics | undefined;
+  let maskBuffer: any; // p5.Graphics | undefined;
 
   p.setup = () => {
     startTime = p.millis();
@@ -424,6 +426,10 @@ const sketch = (p: any) => {
     p.createCanvas(canvasWidth, canvasHeight);
     p.angleMode(p.DEGREES);
     updatePatternScale();
+
+    // グラフィックバッファの初期化
+    drawBuffer = p.createGraphics(p.width, p.height);
+    maskBuffer = p.createGraphics(p.width, p.height);
   };
 
   // アニメーションの更新を行う関数
@@ -503,23 +509,25 @@ const sketch = (p: any) => {
     updateAnimations();
 
     const bgColor = p.color(params.backgroundColor);
-    p.background(bgColor);
-    p.translate(p.width / 2, p.height / 2);
+    // p.background(bgColor); // メインキャンバスの背景描画はバッファ描画後に移動
+    // p.translate(p.width / 2, p.height / 2); // メインキャンバスのtranslateも同様
 
     if (params.clipOutsideCenter) {
-      // マスク用のグラフィックスバッファを作成
-      const maskBuffer = p.createGraphics(p.width, p.height);
-      maskBuffer.background(0);
+      // マスク用バッファの準備
+      maskBuffer.clear(); // バッファをクリア
+      maskBuffer.background(0); // 透明部分を黒に
       maskBuffer.translate(maskBuffer.width / 2, maskBuffer.height / 2);
-      maskBuffer.fill(255);
+      maskBuffer.fill(255); // マスク部分を白に
       maskBuffer.noStroke();
       maskBuffer.circle(0, 0, params.centerRadius * 2);
+      maskBuffer.resetMatrix(); // translateをリセット
 
-      // 描画用のグラフィックスバッファを作成
-      const drawBuffer = p.createGraphics(p.width, p.height);
+      // 描画用バッファの準備
+      drawBuffer.clear(); // バッファをクリア
+      drawBuffer.background(bgColor);
       drawBuffer.translate(drawBuffer.width / 2, drawBuffer.height / 2);
       drawBuffer.angleMode(p.DEGREES);
-      drawBuffer.background(bgColor);
+      // drawBuffer.background(bgColor); // クリア後に背景描画済み
 
       // 図形を描画
       if (currentMode === 'circle') {
@@ -550,14 +558,17 @@ const sketch = (p: any) => {
       }
       
       drawBuffer.updatePixels();
+      drawBuffer.resetMatrix(); // translateをリセット
 
-      // 背景を描画
-      p.background(0);
+      // メインキャンバスへの描画
+      p.background(bgColor); // ここでメインキャンバスの背景を描画
+      p.image(drawBuffer, 0, 0); // バッファを左上に描画 (translateはバッファ内で行う)
 
-      // マスクされた図形を描画
-      p.image(drawBuffer, -p.width / 2, -p.height / 2);
     } else {
       // 通常の描画
+      p.background(bgColor);
+      p.translate(p.width / 2, p.height / 2);
+
       if (currentMode === 'circle') {
         drawCircles();
       } else {
@@ -670,6 +681,17 @@ const sketch = (p: any) => {
     buffer.endShape();
     
     buffer.pop();
+  };
+
+  p.windowResized = () => {
+    canvasWidth = window.innerWidth;
+    canvasHeight = window.innerHeight;
+    p.resizeCanvas(canvasWidth, canvasHeight);
+    updatePatternScale();
+
+    // グラフィックバッファもリサイズ
+    drawBuffer = p.createGraphics(p.width, p.height);
+    maskBuffer = p.createGraphics(p.width, p.height);
   };
 };
 
